@@ -1,6 +1,10 @@
 'use client';
 import { useState } from 'react';
 
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from 'firebase/config';
+
+
 export default function LetterForm() {
   const [form, setForm] = useState({
     firstName: '',
@@ -41,11 +45,18 @@ export default function LetterForm() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Letter Form Data:', form);
-    // You can replace this with Firestore submission later
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
+  try {
+    await addDoc(collection(db, 'letters'), {
+      ...form,
+      status: 'pending', // default status
+      createdAt: new Date(),
+    });
+
+    alert('Letter submitted successfully!');
+    
     // Reset form
     setForm({
       firstName: '',
@@ -58,7 +69,12 @@ export default function LetterForm() {
       body: '',
       date: '',
     });
-  };
+  } catch (error) {
+    console.error('Error submitting letter:', error);
+    alert('Failed to submit letter.');
+  }
+};
+
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow space-y-4">
