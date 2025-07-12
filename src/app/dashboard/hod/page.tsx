@@ -10,7 +10,7 @@ import {
   doc,
   updateDoc,
 } from 'firebase/firestore';
-import { db } from 'firebase/auth';
+import { db } from 'firebase/config';
 
 interface Letter {
   id: string;
@@ -20,18 +20,19 @@ interface Letter {
   subject: string;
   body: string;
   date: string;
+  department: string;
   status: string;
 }
 
-export default function TeacherDashboard() {
-  const mentorName = 'Dr. Ahuja'; // Replace with real auth user later
+export default function HodDashboard() {
+  const hodDepartment = 'MCA'; // ✅ Replace with real dept later
   const [letters, setLetters] = useState<Letter[]>([]);
 
   useEffect(() => {
     const q = query(
       collection(db, 'letters'),
-      where('mentor', '==', mentorName),
-      where('status', '==', 'pending')
+      where('department', '==', hodDepartment),
+      where('status', '==', 'hod_review')
     );
 
     const unsub = onSnapshot(q, (snapshot) => {
@@ -51,16 +52,16 @@ export default function TeacherDashboard() {
     const updateData =
       action === 'approve'
         ? {
-            status: 'approved_by_teacher',
-            'signatures.mentor': true,
+            status: 'approved_by_hod',
+            'signatures.hod': true,
           }
         : action === 'forward'
         ? {
-            status: 'hod_review',
-            'signatures.mentor': true,
+            status: 'dean_review',
+            'signatures.hod': true,
           }
         : {
-            status: 'declined_by_teacher',
+            status: 'declined_by_hod',
           };
 
     await updateDoc(letterRef, updateData);
@@ -68,10 +69,10 @@ export default function TeacherDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-blue-700 mb-6">👨‍🏫 Teacher Dashboard</h1>
+      <h1 className="text-2xl font-bold text-purple-700 mb-6">🏛️ HOD Dashboard</h1>
 
       {letters.length === 0 ? (
-        <p>No pending letters assigned to you.</p>
+        <p>No letters to review for your department.</p>
       ) : (
         <div className="space-y-4">
           {letters.map((letter) => (
@@ -94,7 +95,7 @@ export default function TeacherDashboard() {
                   onClick={() => handleAction(letter.id, 'forward')}
                   className="bg-blue-600 text-white px-3 py-1 rounded"
                 >
-                  📤 Forward to HOD
+                  📤 Forward to Dean
                 </button>
                 <button
                   onClick={() => handleAction(letter.id, 'decline')}

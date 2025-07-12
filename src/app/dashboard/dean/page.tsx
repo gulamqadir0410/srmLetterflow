@@ -10,7 +10,7 @@ import {
   doc,
   updateDoc,
 } from 'firebase/firestore';
-import { db } from 'firebase/auth';
+import { db } from 'firebase/config';
 
 interface Letter {
   id: string;
@@ -20,18 +20,17 @@ interface Letter {
   subject: string;
   body: string;
   date: string;
+  department: string;
   status: string;
 }
 
-export default function TeacherDashboard() {
-  const mentorName = 'Dr. Ahuja'; // Replace with real auth user later
+export default function DeanDashboard() {
   const [letters, setLetters] = useState<Letter[]>([]);
 
   useEffect(() => {
     const q = query(
       collection(db, 'letters'),
-      where('mentor', '==', mentorName),
-      where('status', '==', 'pending')
+      where('status', '==', 'dean_review')
     );
 
     const unsub = onSnapshot(q, (snapshot) => {
@@ -45,22 +44,17 @@ export default function TeacherDashboard() {
     return () => unsub();
   }, []);
 
-  const handleAction = async (id: string, action: 'approve' | 'forward' | 'decline') => {
+  const handleAction = async (id: string, action: 'approve' | 'decline') => {
     const letterRef = doc(db, 'letters', id);
 
     const updateData =
       action === 'approve'
         ? {
-            status: 'approved_by_teacher',
-            'signatures.mentor': true,
-          }
-        : action === 'forward'
-        ? {
-            status: 'hod_review',
-            'signatures.mentor': true,
+            status: 'approved_by_dean',
+            'signatures.dean': true,
           }
         : {
-            status: 'declined_by_teacher',
+            status: 'declined_by_dean',
           };
 
     await updateDoc(letterRef, updateData);
@@ -68,10 +62,10 @@ export default function TeacherDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-blue-700 mb-6">👨‍🏫 Teacher Dashboard</h1>
+      <h1 className="text-2xl font-bold text-indigo-700 mb-6">🎓 Dean Dashboard</h1>
 
       {letters.length === 0 ? (
-        <p>No pending letters assigned to you.</p>
+        <p>No letters awaiting dean approval.</p>
       ) : (
         <div className="space-y-4">
           {letters.map((letter) => (
@@ -89,12 +83,6 @@ export default function TeacherDashboard() {
                   className="bg-green-600 text-white px-3 py-1 rounded"
                 >
                   ✅ Approve
-                </button>
-                <button
-                  onClick={() => handleAction(letter.id, 'forward')}
-                  className="bg-blue-600 text-white px-3 py-1 rounded"
-                >
-                  📤 Forward to HOD
                 </button>
                 <button
                   onClick={() => handleAction(letter.id, 'decline')}
