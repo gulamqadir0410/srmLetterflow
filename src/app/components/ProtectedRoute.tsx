@@ -6,7 +6,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { useRouter, usePathname } from 'next/navigation';
 
 // ✅ Use your own auth/db file, NOT Firebase SDK directly
-import { auth, db } from '@/firebase/auth'; // or '../firebase/auth'
+import { auth, db } from '@/firebase/config'; // or '../firebase/auth'
 
 interface Props {
   allowedRoles: string[];

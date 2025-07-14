@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import LogoutButton from '@/app/components/LogoutButton';
 
 import {
   collection,
@@ -10,7 +11,7 @@ import {
   doc,
   updateDoc,
 } from 'firebase/firestore';
-import { db } from 'firebase/auth';
+import { db } from 'firebase/config';
 
 interface Letter {
   id: string;
@@ -68,7 +69,10 @@ export default function TeacherDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-blue-700 mb-6">👨‍🏫 Teacher Dashboard</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-blue-700">👨‍🏫 Teacher Dashboard</h1>
+        <LogoutButton />
+      </div>
 
       {letters.length === 0 ? (
         <p>No pending letters assigned to you.</p>

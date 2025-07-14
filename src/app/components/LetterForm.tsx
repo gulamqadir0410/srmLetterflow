@@ -1,10 +1,8 @@
 'use client';
 import { useState } from 'react';
 
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase/config';
-
-
 
 export default function LetterForm() {
   const [form, setForm] = useState({
@@ -47,35 +45,43 @@ export default function LetterForm() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    await addDoc(collection(db, 'letters'), {
+    const fullName = `${form.firstName} ${form.lastName}`;
+
+    const letterData = {
       ...form,
-      status: 'pending', // default status
-      createdAt: new Date(),
-    });
+      fullName,
+      status: 'mentor_review',
+      createdAt: serverTimestamp(),
+      signatures: {
+        mentor: false,
+        hod: false,
+        dean: false,
+      },
+    };
 
-    alert('Letter submitted successfully!');
-    
-    // Reset form
-    setForm({
-      firstName: '',
-      lastName: '',
-      regId: '',
-      department: '',
-      stream: '',
-      mentor: '',
-      subject: '',
-      body: '',
-      date: '',
-    });
-  } catch (error) {
-    console.error('Error submitting letter:', error);
-    alert('Failed to submit letter.');
-  }
-};
+    try {
+      await addDoc(collection(db, 'letters'), letterData);
+      alert('Letter submitted!');
 
+      // Reset form
+      setForm({
+        firstName: '',
+        lastName: '',
+        regId: '',
+        department: '',
+        stream: '',
+        mentor: '',
+        subject: '',
+        body: '',
+        date: '',
+      });
+    } catch (error) {
+      console.error('Error submitting letter:', error);
+      alert('Failed to submit letter.');
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow space-y-4">

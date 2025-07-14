@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import LogoutButton from '@/app/components/LogoutButton';
 
 import {
   collection,
@@ -69,7 +70,10 @@ export default function HodDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-purple-700 mb-6">🏛️ HOD Dashboard</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-purple-700">🏛️ HOD Dashboard</h1>
+        <LogoutButton />
+      </div>
 
       {letters.length === 0 ? (
         <p>No letters to review for your department.</p>
